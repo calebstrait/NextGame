@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='styles/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static',filename='styles/favicon-96x96.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static',filename='styles/favicon-16x16.png') }}">
+    <title>NextGame</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/games-output.css') }}">
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <div class="container text-center">
+      <br><br>
+      <a href="/">
+        <img src="https://docs.google.com/drawings/d/12OXcDXA4IwJPn3Y_5PyuypfPqt483o4MMI4vGqASlL8/pub?w=964&h=158" height="100" alt="NextGame">
+      </a>
+    </div>
+    <div class="container text-center">
+      <br>
+      {% if recscore > 0 %}
+        <h2>Have you played {{title}}?</h2>
+      {% else %}
+        <h2>I'm out of suggestions!</h2>
+      {% endif %}
+      <br>
+    </div>
+    <div class="text-center">
+      <form action="/output" method="GET">
+        <table>
+          <tr>
+            <td style="width: 30%; text-align: right;">
+              {% if found_dict|length > 0 %}
+                <font size="4"><b>Games for you:</b></font><br>
+              {% endif %}
+              {% for key, value in found_dict.items() %}
+                {{ value["title"] }}
+                <a href="{{ value["glink"] }}" target="_blank"><img width="10" src="http://www.calebstrait.com/goog.png" alt="Google"></a>
+                <a href="{{ value["amazn"] }}" target="_blank"><img width="10" src="http://www.calebstrait.com/amzn.png" alt="Amazon"></a>
+                <br>
+              {% endfor %}
+            </td>
+            {% if recscore > 0 %}
+            <td style="width: 5%"></td>
+            <td style="width: 5%; text-align: center; padding: 0; border: 0;">
+              <a href="{{glink}}" target="_blank"><img width="50" src="http://www.calebstrait.com/goog.png" alt="Google"></a>
+              <br><br>
+              <a href="{{amazn}}" target="_blank"><img width="50" src="http://www.calebstrait.com/amzn.png" alt="Amazon"></a>
+            </td>
+            <td style="text-align: center; padding: 0; border: 0;">
+              <img src={{pic}} width="150" alt="{{title}}"/>
+            </td>
+            <td style="width: 30%; text-align: left; padding: 0; border: 0;">
+                <font size="4"><b>Genre:</b></font><br>
+                <font size="3">{{genres}}</font><br>
+                <font size="2">{{summary}}</font>
+            </td>
+            <td style="width: 10%"></td>
+            {% endif %}
+          </tr>
+        </table>
+        <br>
+        {% if recscore > 0 %}
+        <button type="submit" name="fb" value="a" class="button">Yeah, it's a great game!</button>
+        <button type="submit" name="fb" value="b" class="button">No, but that looks pretty cool!</button><br>
+        <button type="submit" name="fb" value="c" class="button">I tried it, but it wasn't my favorite</button>
+        <button type="submit" name="fb" value="d" class="button">I don't really play that kind of game</button>
+        {% endif %}
+      </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <!-- Bootstrap core JavaScript - Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="static/js/bootstrap.min.js"></script>
+  </body>
+</html>

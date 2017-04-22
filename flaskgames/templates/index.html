@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='styles/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static',filename='styles/favicon-96x96.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static',filename='styles/favicon-16x16.png') }}">
+    <title>NextGame</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/games-index.css') }}">
+  </head>
+  <body>
+    <div class="vertical-center">
+    <div class="container text-center">
+      <br><br>
+      <a href="/">
+        <img src="https://docs.google.com/drawings/d/12OXcDXA4IwJPn3Y_5PyuypfPqt483o4MMI4vGqASlL8/pub?w=964&h=158" height="100" alt="NextGame">
+      </a>
+    </div>
+    <br>
+    <div class="container">
+      <div class="text-center">
+        <br>
+        <h2>Which consoles do you have?</h2>
+      </div>
+      <div class="container text-center">
+        <form action="/output" method="GET">
+          <div class="form-group">
+            <br>
+            <font size="5">
+            <div class="col-md-2"></div>
+            <div class="col-md-3">
+              Playstation 4
+              <div class="roundedOne">
+  	            <input type="checkbox" value="1" id="PS4" name="PS4" />
+  	            <label for="PS4"></label>
+              </div>
+            </div>
+            <div class="col-md-2">
+              Wii U
+              <div class="roundedOne">
+  	            <input type="checkbox" value="1" id="WiiU" name="WiiU" />
+  	            <label for="WiiU"></label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              Xbox One
+              <div class="roundedOne">
+  	            <input type="checkbox" value="1" id="XB1" name="XB1" />
+  	            <label for="XB1"></label>
+              </div>
+            </div>
+            <div class="col-md-2"></div>
+            </font>
+          </div>
+          <div class="text-center" style="margin-top: 130px;">
+            <button type="submit" class="button">Find Games!</button><br><br>
+            <div>
+              <br><br>
+              <div class="col-md-3"></div>
+              <div class="col-md-3">
+                <!--a href="about.html"-->
+                <a href="{{ url_for('about') }}">
+                  <img src="https://docs.google.com/drawings/d/1gHRzz1Gl3CsflnLUdkBI35kByG3ZfFItnKfREkh37bo/pub?w=142&h=148" height="100" alt="About">
+                </a>
+              </div>
+              <div class="col-md-3">
+                <a href="http://www.calebstrait.com">
+                  <img src="https://docs.google.com/drawings/d/1zQgaIQd8gAXKGLowVXFrz0FC9ShRxVsn6YfDrT51aNQ/pub?w=142&h=148" height="100" alt="Author">
+                </a>
+              </div>
+              <div class="col-md-3"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+      <script src="static/js/bootstrap.min.js"></script>
+    </div>
+
+
+
+    <!-- Bootstrap core JavaScript - Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="static/js/bootstrap.min.js"></script>
+  </div>
+  </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static',filename='styles/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static',filename='styles/favicon-96x96.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static',filename='styles/favicon-16x16.png') }}">
+    <title>NextGame</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/bootstrap.min.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/games-index.css') }}">
+  </head>
+  <body>
+    <div class="container text-center">
+      <br>
+      <a href="/">
+        <img src="https://docs.google.com/drawings/d/12OXcDXA4IwJPn3Y_5PyuypfPqt483o4MMI4vGqASlL8/pub?w=964&h=158" height="100" alt="NextGame">
+      </a>
+      <br><br>
+      <img src="https://docs.google.com/drawings/d/1gHRzz1Gl3CsflnLUdkBI35kByG3ZfFItnKfREkh37bo/pub?w=142&h=148" height="100" alt="About">
+    <div class="container">
+      <div class="text-left about_text">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <h3>NextGame is a tool that recommends video games based on an entered set of consoles. Created in Python and Flask, it uses collaborative filtering between game critic's ratings, and reinforcement learning to make real-time updating game suggestions based on user input. For game data it uses igdb.com (their api and web scraping) out of a PostgreSQL database. Its data were cleaned up with regular expressions, and sanity-checked using Pandas and Numpy.</h3>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+      <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+      <script src="static/js/bootstrap.min.js"></script>
+    </div>
+    <br>
+    <a href="http://www.calebstrait.com">
+      <img src="https://docs.google.com/drawings/d/1zQgaIQd8gAXKGLowVXFrz0FC9ShRxVsn6YfDrT51aNQ/pub?w=142&h=148" height="100" alt="Author">
+    </a>
+    <!-- Bootstrap core JavaScript - Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="static/js/bootstrap.min.js"></script>
+  </div>
+  </body>
+</html>
