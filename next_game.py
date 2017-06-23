@@ -6,11 +6,17 @@ import numpy as np
 import pandas as pd
 import os.path
 import sys
-#import pylab as pl
 from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists, create_database
 import psycopg2
 import webbrowser
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn import decomposition
+from sklearn import datasets
+import csv
 
 num_display = 1    # Number of games to display at a time
 num_reviews = 6    # Minimum reviews per game
@@ -18,6 +24,7 @@ api_calls   = 700  # Number of api calls
 shrinkage   = .1   # Shrinkage coef.: degree to which # of reviews reweights
 step_size   = .5   # Size of feedback adjustments
 calc_table  = 0    # 1 = save to database; 0 = load from database
+issue_games = ['Pac-Man Championship Edition 2','Mortal Kombat X']#,'Tropico 5','Street Fighter V','Guitar Hero Live']
 
 def main(platforms,feedback):
     # SQL database setup
@@ -30,9 +37,9 @@ def main(platforms,feedback):
     dbname = 'games_db'
     #port = '5432'
     #engine = create_engine('postgresql://%s:%s@%s:%s/%s'%(username,password,host,port,dbname),echo=True)
-    engine = create_engine('postgresql://%s:%s@%s/%s'%(username,password,host,dbname),echo=True)
+    engine = create_engine('postgresql://%s:%s@%s/%s'%(username,password,host,dbname))
     #engine = create_engine('postgresql://%s@%s/%s'%(username,password,host,dbname),echo=True)
-    print('\n**connected**\n')
+    # print('\n**connected**\n')
     if (calc_table == 1) & (feedback is None):
         print('\n**0**\n')
         # Get the names of all games on supplied platforms
@@ -64,6 +71,9 @@ def main(platforms,feedback):
         Games_DF.to_sql('Games', engine, if_exists='replace', index=False)
         print('\n**5**\n')
     if feedback is None:
+        f = open('/home/ubuntu/application/data/freshuser.csv',"w")
+        f.write("yes")
+        f.close()
         Games_DF = pd.read_sql_table('Games', engine)
         Games_DF.to_sql('Games_temp', engine, if_exists='replace', index=False)
         found_DF = pd.DataFrame(list(), columns=['found'])
@@ -76,7 +86,11 @@ def main(platforms,feedback):
         Games_DF_temp = pd.read_sql_table('Games_temp', engine)
         found_DF = pd.read_sql_table('found', engine)
         ret = adjust_scores(Games_DF_temp,feedback,platforms,0,found_DF['found'].tolist())
-        Games_DF_temp = ret.Games_DF
+        try:
+            Games_DF_temp = votes_plot(ret.Games_DF,ret.fb_valu)
+        except:
+            print("Error:", sys.exc_info()[0])
+            Games_DF_temp = ret.Games_DF
         Games_DF_temp.to_sql('Games_temp', engine, if_exists='replace', index=False)
         found_DF = pd.DataFrame(ret.found, columns=['found'])
         found_DF.to_sql('found', engine, if_exists='replace', index=False)
@@ -218,21 +232,22 @@ def get_recommendations(Games_DF,platforms,found):
         plats = sorted_DF.iloc[i]['platforms']
         plats_split = plats.split("--")
         if not (set(int(j) for j in plats_split).isdisjoint(set(platforms))):
-            # Name
-            names.append(sorted_DF.iloc[i]['title'])
-            # Picture
-            covers.append(sorted_DF.iloc[i]['cover_url'])
-            # Genres
-            genres.append(sorted_DF.iloc[i]['genres'].replace("--",", "))
-            # Google Link
-            glink.append('http://www.google.com/search?q=' + sorted_DF.iloc[i]['title'].replace(" ","+"))
-            # Amazon Link
-            amazn.append('http://www.amazon.com/s?url=search-alias%3Daps&field-keywords=' + sorted_DF.iloc[i]['title'].replace(" ","+"))
-            # Summary
-            summary.append(sorted_DF.iloc[i]['summaries'])
-            # Score
-            score_of_rec = float(sorted_DF.iloc[i]['working_score'])
-
+            if len(sorted_DF.iloc[i]['summaries']) > 150 and (sorted_DF.iloc[i]['title'] not in issue_games):
+                # Name
+                names.append(sorted_DF.iloc[i]['title'])
+                # Picture
+                covers.append(sorted_DF.iloc[i]['cover_url'])
+                # Genres
+                genres.append(sorted_DF.iloc[i]['genres'].replace("--",", "))
+                # Google Link
+                glink.append('http://www.google.com/search?q=' + sorted_DF.iloc[i]['title'].replace(" ","+"))
+                # Amazon Link
+                amazn.append('http://www.amazon.com/s?url=search-alias%3Daps&field-keywords=' + sorted_DF.iloc[i]['title'].replace(" ","+"))
+                # Summary
+                summary.append(sorted_DF.iloc[i]['summaries'])
+                # Score
+                score_of_rec = float(sorted_DF.iloc[i]['working_score'])
+                #print(names[0],'\n\n',score_of_rec,'\n\n')
         i = i + 1
 
     nt = namedtuple('nt', ['names','covers','genres','glink','amazn','summary','found','score'])
@@ -310,9 +325,6 @@ def adjust_scores(Games_DF,feedback,platforms,initialize,found):
         pf = parse_feedback(Games_DF,feedback,platforms,found)
         found = pf.found
 
-        # Save for bipartite graph
-        Games_DF_old = Games_DF.copy()
-
         # Adjust scores
         for x in range(0,(len(games)-1)):
             if list(Games_DF.title)[x] == pf.fb_game:
@@ -327,10 +339,13 @@ def adjust_scores(Games_DF,feedback,platforms,initialize,found):
                     ##
                     Games_DF.ix[x,'working_score'] = post_score
         Games_DF.ix[fb_game_ind,'working_score'] = 0
-        #bipartite(Games_DF_old,Games_DF,platforms)
+        print('adjusted:\n',Games_DF.iloc[fb_game_ind]['title'],'\n\n')
+        fb_valu = pf.fb_valu
+    else:
+        fb_valu = 0
 
-    nt = namedtuple('nt', ['Games_DF','found'])
-    return nt(Games_DF, found)
+    nt = namedtuple('nt', ['Games_DF','found','fb_valu'])
+    return nt(Games_DF, found, fb_valu)
 
 def parse_feedback(Games_DF,feedback,platforms,found):
 
@@ -345,7 +360,8 @@ def parse_feedback(Games_DF,feedback,platforms,found):
         plats = sorted_DF.iloc[i]['platforms']
         plats_split = plats.split("--")
         if not (set(int(j) for j in plats_split).isdisjoint(set(platforms))):
-            names.append(sorted_DF.iloc[i]['title'])
+            if len(sorted_DF.iloc[i]['summaries']) > 150 and (sorted_DF.iloc[i]['title'] not in issue_games):
+                names.append(sorted_DF.iloc[i]['title'])
         i = i + 1
     fb_game = names[0]
     if feedback[0] == 'a':
@@ -357,6 +373,7 @@ def parse_feedback(Games_DF,feedback,platforms,found):
         fb_valu = -1
     elif feedback[0] == 'd':
         fb_valu = -2
+    #print('\nnames:',names)
     nt = namedtuple('nt', ['fb_game','fb_valu','found'])
     return nt(fb_game, fb_valu, found)
 
@@ -402,6 +419,60 @@ def bipartite(old_DF,new_DF,platforms):
     for x in range(0,len(old_names)):
         pass
         #print(str(x) + '. ' + old_names[x] + ' -> ' + new_names[x])
+
+def votes_plot(DF,last_feedback):
+
+    # Save recent feedback to DF
+    if last_feedback > 0:
+        last_feedback = 1
+    elif last_feedback < 0:
+        last_feedback = -1
+    if 'fb' not in DF:
+        DF['fb'] = 0 # initialize feedback list
+    feedback_count = DF.iloc[0]['fb']
+    DF.set_value(feedback_count + 1,'fb',last_feedback)
+    DF.set_value(0,'fb',feedback_count + 1)
+
+    # One plot per user
+    counts = DF['fb']
+    vcs = counts.value_counts(sort=False)
+    path = '/home/ubuntu/application/data/user_'
+    if len(vcs.values) > 3: # Once we have upvotes and downvotes
+
+        # Get first unused filename number
+        i = 1
+        fname = path + str(i) + '.png'
+        while os.path.isfile(fname):
+           i = i + 1
+           fname = path + str(i) + '.png'
+        # Is this iteration one? If not, not unused
+        with open('/home/ubuntu/application/data/freshuser.csv', 'r') as g:
+            reader = csv.reader(g)
+            y = list(reader)[0]
+        g.close()
+        if y[0] == 'no':
+            i = i - 1
+            fname = path + str(i) + '.png'
+        else:
+            f = open('/home/ubuntu/application/data/freshuser.csv',"w")
+            f.write("no")
+            f.close()
+        # Write to file
+        value_to_plot = vcs.values[1] / (vcs.values[1] + vcs.values[0])
+        f = open(path + str(i) + '.csv',"a")
+        f.write(str(value_to_plot))
+        f.write(",")
+        f.close()
+        # Read back full file
+        with open(path + str(i) + '.csv', 'r') as g:
+            reader = csv.reader(g)
+            y = list(reader)[0]
+        # Plot upvote/downvote percentage across run
+        x = list(range(1,len(y)))
+        plt.plot(x, y[:-1], "o")
+        plt.savefig(fname)
+        plt.close()
+    return DF
 
 if __name__ == '__main__':
     #PS4  code = 48
